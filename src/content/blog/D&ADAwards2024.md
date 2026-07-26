@@ -8,7 +8,8 @@ slug: D&ADAwards2024
 tags:
   - exhibition
   - design
-  - book
+  - reading
+  - poster
 ---
 
 <figure>

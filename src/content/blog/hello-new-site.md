@@ -5,7 +5,7 @@ draft: true
 publishedAt: 2026-07-26
 slug: hello-new-site
 tags:
-  - diary
+  - story
 ---
 
 这是我的第一篇测试文章。

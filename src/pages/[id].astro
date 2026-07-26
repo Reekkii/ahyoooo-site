@@ -166,18 +166,21 @@ const { Content } = await render(post)
   article h3 { margin: 58px 0 18px; color: var(--color-heading); font-size: 1.1rem; font-weight: 650; line-height: 1.55; }
   article h4 { margin: 48px 0 16px; color: var(--color-heading); font-size: .98rem; font-weight: 650; line-height: 1.65; }
   article p { margin: 0 0 28px; }
+  article p:has(+ blockquote) { margin-bottom: 12px; }
+  article p:has(+ figure),
+  article p:has(+ .image-pair) { margin-bottom: 0; }
   article blockquote {
-    margin: 42px 0;
+    margin: 12px 0 14px;
     padding: 2px 0 2px 25px;
     border-left: 3px solid var(--color-border);
     opacity: .84;
   }
   article blockquote p:last-child { margin-bottom: 0; }
-  article img { display: block; width: 100%; height: auto; margin: 22px 0; background: #fff; }
-  article figure { margin: 22px 0; }
+  article img { display: block; width: 100%; height: auto; margin: 20px 0 22px; background: #fff; }
+  article figure { margin: 20px 0 22px; }
   article figure img { margin: 0; }
   article figcaption { margin-top: 3px; font-size: .78rem; line-height: 1.45; text-align: left; opacity: .58; }
-  article .image-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 22px 0; }
+  article .image-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 20px 0 22px; }
   article .image-pair figure { margin: 0; }
   article .image-pair img { margin: 0; }
   article li { margin-bottom: 10px; }

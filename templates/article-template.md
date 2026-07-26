@@ -6,8 +6,9 @@ description: "用一两句话介绍这篇文章。这段文字会显示在主页
 draft: true
 publishedAt: 2026-07-26
 slug: test-article
+# 可根据内容使用：story、essay、reading、photography、poster、exhibition
 tags:
-  - diary
+  - story
 ---
 
 这里是文章导言。可以简单说明写作缘起，也可以直接删除这一段，从正文开始。

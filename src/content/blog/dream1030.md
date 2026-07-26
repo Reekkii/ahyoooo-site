@@ -3,7 +3,7 @@ title: Memento
 description: 由几个梦的碎片拼凑而成的短篇故事。
 publishedAt: 2021-10-30
 tags:
-  - dream
+  - story
 ---
 
 ## Scene 01

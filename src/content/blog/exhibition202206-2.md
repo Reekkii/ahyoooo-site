@@ -8,6 +8,7 @@ publishedAt: 2022-06-10
 slug: memento-mori
 tags:
   - exhibition
+  - photography
 ---
 TOP Collection: The Illumination of Life by Death — Memento Mori & Photography 
 📍 東京都写真美術館
