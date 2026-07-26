@@ -155,7 +155,15 @@ const posts = (await getCollection('blog')).sort(
     width: min(768px, calc(100% - 32px));
     min-height: 65px;
     padding: 0 16px;
-    background: var(--color-sticky);
+    border-radius: 14px;
+    background:
+      linear-gradient(
+        90deg,
+        transparent 0%,
+        var(--color-sticky) 7%,
+        var(--color-sticky) 93%,
+        transparent 100%
+      );
   }
   .site-header.is-sticky .site-description { max-width: 430px; opacity: .76; }
   main {
