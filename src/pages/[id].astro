@@ -4,7 +4,9 @@ import HomeIcon from '../components/HomeIcon.astro'
 import SiteFooter from '../components/SiteFooter.astro'
 
 export async function getStaticPaths() {
-  const posts = (await getCollection('blog')).filter((post) => !post.data.draft)
+  const posts = (await getCollection('blog')).filter(
+    (post) => !import.meta.env.PROD || !post.data.draft
+  )
 
   return posts.map((post) => ({
     params: { id: post.data.slug ?? post.id },
@@ -171,11 +173,11 @@ const { Content } = await render(post)
     opacity: .84;
   }
   article blockquote p:last-child { margin-bottom: 0; }
-  article img { display: block; width: 100%; height: auto; margin: 46px 0; background: #fff; }
-  article figure { margin: 46px 0; }
+  article img { display: block; width: 100%; height: auto; margin: 22px 0; background: #fff; }
+  article figure { margin: 22px 0; }
   article figure img { margin: 0; }
-  article figcaption { margin-top: 9px; font-size: .78rem; line-height: 1.6; text-align: left; opacity: .58; }
-  article .image-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin: 46px 0; }
+  article figcaption { margin-top: 3px; font-size: .78rem; line-height: 1.45; text-align: left; opacity: .58; }
+  article .image-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 22px 0; }
   article .image-pair figure { margin: 0; }
   article .image-pair img { margin: 0; }
   article li { margin-bottom: 10px; }
