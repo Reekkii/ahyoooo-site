@@ -20,6 +20,7 @@ const posts = (await getCollection('blog'))
     title: post.data.title,
     description: post.data.description,
     excerpt: makeExcerpt(post.data.description),
+    searchText: post.body,
     tags: post.data.tags,
     date: post.data.publishedAt.toLocaleDateString('en-US', {
       year: 'numeric',
@@ -56,7 +57,7 @@ const tagCounts = posts
         id="search-input"
         type="search"
         placeholder="Search Articles"
-        aria-label="Search articles by title, summary, or tag"
+        aria-label="Search the full text of articles"
         autocomplete="off"
       />
 
@@ -123,7 +124,7 @@ const tagCounts = posts
       function draw(query = '') {
         const needle = query.trim().toLocaleLowerCase()
         const matches = posts.filter((post) => {
-          const matchesText = [post.title, post.description, ...post.tags]
+          const matchesText = [post.title, post.description, post.searchText, ...post.tags]
             .join(' ')
             .toLocaleLowerCase()
             .includes(needle)
