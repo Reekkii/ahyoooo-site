@@ -16,6 +16,7 @@ const makeExcerpt = (value: string, limit = 58) => {
 }
 
 const posts = (await getCollection('blog'))
+  .filter((post) => !post.data.draft)
   .map((post) => ({
     title: post.data.title,
     description: post.data.description,

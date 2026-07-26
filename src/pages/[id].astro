@@ -4,7 +4,7 @@ import HomeIcon from '../components/HomeIcon.astro'
 import SiteFooter from '../components/SiteFooter.astro'
 
 export async function getStaticPaths() {
-  const posts = await getCollection('blog')
+  const posts = (await getCollection('blog')).filter((post) => !post.data.draft)
 
   return posts.map((post) => ({
     params: { id: post.data.slug ?? post.id },

@@ -2,9 +2,9 @@
 import { getCollection } from 'astro:content'
 import SiteFooter from '../components/SiteFooter.astro'
 
-const posts = (await getCollection('blog')).sort(
-  (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf()
-)
+const posts = (await getCollection('blog'))
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf())
 ---
 
 <!doctype html>
