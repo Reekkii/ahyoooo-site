@@ -209,13 +209,24 @@ const posts = (await getCollection('blog')).sort(
   }
   @media (max-width: 700px) {
     .site-header { padding: 30px 0 44px; }
-    .header-inner { align-items: flex-start; }
-    nav { gap: 13px; flex-wrap: wrap; justify-content: flex-end; }
-    nav a { font-size: .8rem; }
+    .header-inner {
+      width: calc(100% - 32px);
+      align-items: center;
+      gap: 12px;
+    }
+    nav {
+      flex: none;
+      gap: clamp(8px, 2.7vw, 13px);
+      flex-wrap: nowrap;
+      justify-content: flex-end;
+      white-space: nowrap;
+    }
+    nav a { font-size: clamp(.7rem, 3vw, .8rem); }
     .site-header.is-sticky { padding: 0; }
     .site-header.is-sticky .header-inner {
-      width: calc(100% - 16px);
+      width: calc(100% - 24px);
       min-height: 56px;
+      padding: 0 12px;
     }
     .site-header.is-sticky .site-description { display: none; }
     .post-heading { display: grid; gap: 5px; }

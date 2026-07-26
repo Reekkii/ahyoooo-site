@@ -110,9 +110,16 @@ const footprintEndpoint = import.meta.env.PUBLIC_FOOTPRINT_ENDPOINT ?? ''
   }
   @media (max-width: 520px) {
     .footer-row {
-      align-items: flex-start;
-      flex-direction: column;
-      gap: 3px;
+      align-items: baseline;
+      flex-direction: row;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .footer-note {
+      max-width: 70%;
+    }
+    .footprints {
+      margin-left: auto;
     }
   }
 </style>
