@@ -1,0 +1,118 @@
+---
+const footprintEndpoint = import.meta.env.PUBLIC_FOOTPRINT_ENDPOINT ?? ''
+---
+
+<footer>
+  <div class="footer-row">
+    <div class="footer-note">© 2021–2026 ahyo. All rights reserved.</div>
+    <div
+      class="footprints"
+      data-footprints
+      data-endpoint={footprintEndpoint}
+      aria-live="polite"
+    >
+      <span data-footprint-count>—</span>
+      <span data-footprint-label>footprints</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const VISIT_GAP = 30 * 60 * 1000
+
+  document.querySelectorAll<HTMLElement>('[data-footprints]').forEach(async (counter) => {
+    const countNode = counter.querySelector<HTMLElement>('[data-footprint-count]')
+    const labelNode = counter.querySelector<HTMLElement>('[data-footprint-label]')
+    if (!countNode || !labelNode) return
+
+    const showCount = (count: number) => {
+      countNode.textContent = new Intl.NumberFormat('en-US').format(count)
+      labelNode.textContent = count === 1 ? 'footprint' : 'footprints'
+    }
+
+    const endpoint = counter.dataset.endpoint
+
+    if (endpoint) {
+      try {
+        const response = await fetch(endpoint, { method: 'POST' })
+        if (!response.ok) throw new Error('Footprint counter unavailable')
+        const data = await response.json()
+        showCount(Number(data.count))
+        return
+      } catch {
+        countNode.textContent = '—'
+        return
+      }
+    }
+
+    // Local preview only: keep a tiny counter in this browser.
+    const now = Date.now()
+    const lastVisit = Number(localStorage.getItem('ahyo:last-visit') ?? 0)
+    let count = Number(localStorage.getItem('ahyo:local-footprints') ?? 0)
+
+    if (!lastVisit || now - lastVisit >= VISIT_GAP) {
+      count += 1
+      localStorage.setItem('ahyo:local-footprints', String(count))
+    }
+
+    localStorage.setItem('ahyo:last-visit', String(now))
+    showCount(count)
+  })
+</script>
+
+<style>
+  :global(:root) {
+    --color-bg: #dde3e8;
+    --color-heading: #1d2933;
+    --color-text: #34424c;
+    --color-muted: #71808b;
+    --color-accent: #405f91;
+    --color-hover: #d3dde5;
+    --color-border: #aab8c3;
+    --color-panel: rgba(238, 242, 245, .48);
+    --color-sticky: rgba(230, 235, 239, .6);
+  }
+  footer {
+    width: min(640px, calc(100% - 48px));
+    margin: 64px auto 0;
+    padding: 0 0 44px;
+    font-size: .72rem;
+    opacity: .58;
+  }
+  footer::before {
+    content: "";
+    display: block;
+    width: 36px;
+    height: 1px;
+    margin-bottom: 18px;
+    background: color-mix(in srgb, var(--color-border) 72%, transparent);
+  }
+  .footer-note,
+  .footprints {
+    line-height: 1.7;
+  }
+  .footer-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .footprints {
+    display: flex;
+    align-items: baseline;
+    gap: .28rem;
+    width: fit-content;
+    letter-spacing: .01em;
+    white-space: nowrap;
+  }
+  [data-footprint-count] {
+    font-variant-numeric: tabular-nums;
+  }
+  @media (max-width: 520px) {
+    .footer-row {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 3px;
+    }
+  }
+</style>

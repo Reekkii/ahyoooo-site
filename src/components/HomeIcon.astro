@@ -1,0 +1,151 @@
+---
+const pathname = Astro.url.pathname
+const isArticle = !['/', '/about/', '/bookmarks/', '/search/'].includes(pathname)
+const { articleTitle } = Astro.props
+---
+
+<header class="sub-header">
+  <div class="header-inner">
+    <a class="identity" href="/" aria-label="返回主页" title="返回主页">
+      <span class="home-icon" aria-hidden="true">
+        <img src="/images/site/ahyo-icon.png" alt="" />
+      </span>
+      <span class:list={['site-description', { 'article-title': articleTitle }]}>
+        {
+          articleTitle
+            ? <strong>{articleTitle}</strong>
+            : <><strong>ahyo's blog,</strong> personal archive for visual culture &amp; life.</>
+        }
+      </span>
+    </a>
+
+    <nav aria-label="主要导航">
+      <a href="/" aria-current={isArticle ? 'page' : undefined}>Home</a>
+      <a href="/about/" aria-current={pathname === '/about/' ? 'page' : undefined}>About</a>
+      <a href="/bookmarks/" aria-current={pathname === '/bookmarks/' ? 'page' : undefined}>Bookmarks</a>
+      <a href="/search/" aria-current={pathname === '/search/' ? 'page' : undefined}>Search</a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const subHeader = document.querySelector('.sub-header')
+  const subHeaderInner = document.querySelector<HTMLElement>('.sub-header .header-inner')
+  const updateSubHeader = () => {
+    const isScrolled = window.scrollY > 12
+    subHeader?.classList.toggle('is-scrolled', isScrolled)
+
+    if (isScrolled) {
+      subHeaderInner?.style.setProperty('backdrop-filter', 'blur(12px)')
+      subHeaderInner?.style.setProperty('-webkit-backdrop-filter', 'blur(12px)')
+    } else {
+      subHeaderInner?.style.removeProperty('backdrop-filter')
+      subHeaderInner?.style.removeProperty('-webkit-backdrop-filter')
+    }
+  }
+
+  window.addEventListener('scroll', updateSubHeader, { passive: true })
+  updateSubHeader()
+</script>
+
+<style>
+  .sub-header {
+    position: absolute;
+    z-index: 20;
+    inset: 0 0 auto;
+    padding: 68px 0 0;
+    transition: none;
+  }
+  .header-inner {
+    width: min(736px, calc(100% - 48px));
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .identity {
+    min-width: 30px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: inherit;
+    text-decoration: none;
+  }
+  .home-icon {
+    flex: none;
+    display: block;
+    width: 30px;
+    height: 30px;
+    color: inherit;
+    border-radius: 7px;
+    overflow: hidden;
+    background: #f4f3ed;
+    text-decoration: none;
+    transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+  }
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+  }
+  .identity:hover .home-icon,
+  .identity:focus-visible .home-icon {
+    opacity: .95;
+    transform: translateY(-1px) scale(1.015);
+    box-shadow: 0 4px 10px rgba(29, 41, 51, .08);
+  }
+  .identity:focus-visible {
+    outline: none;
+  }
+  .site-description {
+    max-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    opacity: 0;
+    font-size: .86rem;
+  }
+  .site-description strong { font-weight: 650; }
+  .site-description.article-title strong { font-weight: 500; }
+  nav {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  nav a {
+    color: inherit;
+    text-decoration: none;
+    font-size: .88rem;
+  }
+  nav a:hover { color: var(--color-accent); opacity: 1; }
+  nav a[aria-current="page"] { text-decoration: none; }
+  .sub-header.is-scrolled {
+    position: fixed;
+    padding: 0;
+  }
+  .sub-header.is-scrolled .header-inner {
+    width: min(768px, calc(100% - 32px));
+    min-height: 65px;
+    padding: 0 16px;
+    background: var(--color-sticky);
+  }
+  .sub-header.is-scrolled .site-description {
+    max-width: 430px;
+    opacity: .76;
+  }
+  @media (max-width: 760px) {
+    .sub-header { padding-top: 30px; }
+    .header-inner { align-items: flex-start; }
+    nav { gap: 13px; flex-wrap: wrap; justify-content: flex-end; }
+    nav a { font-size: .8rem; }
+    .sub-header.is-scrolled { padding: 0; }
+    .sub-header.is-scrolled .header-inner {
+      width: calc(100% - 16px);
+      min-height: 56px;
+    }
+    .site-description { display: none; }
+  }
+</style>

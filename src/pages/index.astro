@@ -1,0 +1,224 @@
+---
+import { getCollection } from 'astro:content'
+import SiteFooter from '../components/SiteFooter.astro'
+
+const posts = (await getCollection('blog')).sort(
+  (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf()
+)
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta
+      name="description"
+      content="ahyo's blog, personal archive for visual culture & life."
+    />
+    <link rel="icon" type="image/png" href="/images/site/ahyo-icon.png" />
+    <title>ahyo's blog</title>
+  </head>
+  <body>
+    <header class="site-header" id="site-header">
+      <div class="header-inner">
+        <a class="identity" href="/" aria-label="ahyo's blog 首页">
+          <span class="site-icon" aria-hidden="true"></span>
+          <span class="site-description">
+            <strong>ahyo's blog,</strong> personal archive for visual culture &amp; life.
+          </span>
+        </a>
+
+        <nav aria-label="主要导航">
+          <a href="/" aria-current="page">Home</a>
+          <a href="/about/">About</a>
+          <a href="/bookmarks/">Bookmarks</a>
+          <a href="/search/">Search</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <h1 class="visually-hidden">Blog</h1>
+      <ol class="post-list">
+        {
+          posts.map((post) => (
+            <li>
+              <a href={`/${post.data.slug ?? post.id}/`}>
+                <div class="post-heading">
+                  <h2>{post.data.title}</h2>
+                  <time datetime={post.data.publishedAt.toISOString()}>
+                    {post.data.publishedAt.toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric'
+                    })}
+                  </time>
+                </div>
+                <p>{post.data.description}</p>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </main>
+
+    <SiteFooter />
+
+    <script>
+      const header = document.querySelector('#site-header')
+      const headerInner = document.querySelector<HTMLElement>('#site-header .header-inner')
+      const updateHeader = () => {
+        const isSticky = window.scrollY > 12
+        header?.classList.toggle('is-sticky', isSticky)
+
+        if (isSticky) {
+          headerInner?.style.setProperty('backdrop-filter', 'blur(12px)')
+          headerInner?.style.setProperty('-webkit-backdrop-filter', 'blur(12px)')
+        } else {
+          headerInner?.style.removeProperty('backdrop-filter')
+          headerInner?.style.removeProperty('-webkit-backdrop-filter')
+        }
+      }
+      window.addEventListener('scroll', updateHeader, { passive: true })
+      updateHeader()
+    </script>
+  </body>
+</html>
+
+<style>
+  :global(*) { box-sizing: border-box; }
+  :global(html) { scroll-behavior: smooth; }
+  :global(body) {
+    margin: 0;
+    min-height: 100vh;
+    color: var(--color-text);
+    background: var(--color-bg);
+    font-family: "Helvetica Neue", "PingFang SC", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Microsoft YaHei", Arial, sans-serif;
+    font-weight: 400;
+  }
+  .site-header {
+    position: relative;
+    z-index: 10;
+    padding: 68px 0 54px;
+  }
+  .header-inner {
+    width: min(736px, calc(100% - 48px));
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .identity {
+    min-width: 24px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: inherit;
+    text-decoration: none;
+  }
+  .site-icon {
+    width: 30px;
+    height: 30px;
+    flex: none;
+    border-radius: 7px;
+    background: url("/images/site/ahyo-icon.png") center / cover no-repeat;
+    transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+  }
+  .identity:hover .site-icon,
+  .identity:focus-visible .site-icon {
+    opacity: .95;
+    transform: translateY(-1px) scale(1.015);
+    box-shadow: 0 4px 10px rgba(29, 41, 51, .08);
+  }
+  .identity:focus-visible { outline: none; }
+  .site-description {
+    max-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    opacity: 0;
+    font-size: .86rem;
+    transition: max-width .3s ease, opacity .2s ease;
+  }
+  .site-description strong { font-weight: 650; }
+  nav { display: flex; align-items: center; gap: 20px; }
+  nav a { color: inherit; text-decoration: none; font-size: .88rem; }
+  nav a:hover { color: var(--color-accent); opacity: 1; }
+  nav a[aria-current="page"] { text-decoration: none; }
+  .site-header.is-sticky {
+    position: fixed;
+    inset: 0 0 auto;
+    padding: 0;
+  }
+  .site-header.is-sticky .header-inner {
+    width: min(768px, calc(100% - 32px));
+    min-height: 65px;
+    padding: 0 16px;
+    background: var(--color-sticky);
+  }
+  .site-header.is-sticky .site-description { max-width: 430px; opacity: .76; }
+  main {
+    width: min(640px, calc(100% - 48px));
+    margin: 0 auto;
+  }
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .post-list { margin: 0; padding: 0; list-style: none; }
+  .post-list li { margin: 0 0 18px; }
+  .post-list a {
+    display: block;
+    margin: 0 -16px;
+    padding: 14px 16px 16px;
+    border-radius: 9px;
+    color: inherit;
+    text-decoration: none;
+    transition:
+      transform .22s cubic-bezier(.2, .75, .3, 1),
+      background-color .22s ease,
+      box-shadow .22s ease;
+  }
+  .post-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 24px; }
+  .post-heading h2 { margin: 0; color: var(--color-heading); font-size: 1.08rem; line-height: 1.5; font-weight: 650; }
+  .post-heading time { flex: none; font-size: .74rem; opacity: .64; }
+  .post-list p { margin: 9px 0 0; font-size: .9rem; line-height: 1.85; opacity: .76; }
+  .post-list a:hover,
+  .post-list a:focus-visible {
+    transform: translate(5px, -2px);
+    background: color-mix(in srgb, var(--color-hover) 55%, transparent);
+    box-shadow: 0 8px 22px rgba(29, 41, 51, .055);
+    outline: none;
+  }
+  .post-list a:hover h2,
+  .post-list a:focus-visible h2 {
+    color: var(--color-accent);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .post-list a { transition: none; }
+    .post-list a:hover,
+    .post-list a:focus-visible { transform: none; }
+  }
+  @media (max-width: 700px) {
+    .site-header { padding: 30px 0 44px; }
+    .header-inner { align-items: flex-start; }
+    nav { gap: 13px; flex-wrap: wrap; justify-content: flex-end; }
+    nav a { font-size: .8rem; }
+    .site-header.is-sticky { padding: 0; }
+    .site-header.is-sticky .header-inner {
+      width: calc(100% - 16px);
+      min-height: 56px;
+    }
+    .site-header.is-sticky .site-description { display: none; }
+    .post-heading { display: grid; gap: 5px; }
+    .post-heading time { order: -1; }
+  }
+</style>

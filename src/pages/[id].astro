@@ -1,0 +1,206 @@
+---
+import { getCollection, render } from 'astro:content'
+import HomeIcon from '../components/HomeIcon.astro'
+import SiteFooter from '../components/SiteFooter.astro'
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog')
+
+  return posts.map((post) => ({
+    params: { id: post.data.slug ?? post.id },
+    props: { post }
+  }))
+}
+
+const { post } = Astro.props
+const { Content } = await render(post)
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={post.data.description} />
+    <title>{post.data.title} — Ahyo</title>
+  </head>
+  <body>
+    <HomeIcon articleTitle={post.data.title} />
+    <main>
+      <header>
+        <h1>{post.data.title}</h1>
+        {post.data.subtitle && <p class="subtitle" lang={post.data.subtitleLang}>{post.data.subtitle}</p>}
+        {!post.data.hideDescription && <p class="description">{post.data.description}</p>}
+        <div class="post-meta">
+          <a class="author" href="/" aria-label="ahyo，返回主页">
+            <span>By ahyo.</span>
+          </a>
+          <span class="meta-divider" aria-hidden="true">/</span>
+          <time datetime={post.data.publishedAt.toISOString()}>
+            {post.data.publishedAt.toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric'
+            })}
+          </time>
+          <ul class="tags">
+            {
+              post.data.tags.map((tag) => (
+                <li>
+                  <a href={`/search/?tag=${encodeURIComponent(tag)}`}>{tag}</a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </header>
+      <article>
+        <Content />
+      </article>
+    </main>
+    <SiteFooter />
+  </body>
+</html>
+
+<style is:global>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    color: var(--color-text);
+    background: var(--color-bg);
+    font-family: "Helvetica Neue", "PingFang SC", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Microsoft YaHei", Arial, sans-serif;
+    font-weight: 400;
+  }
+  :where([lang="ja"]) {
+    font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic", Meiryo, sans-serif;
+  }
+  main { width: min(640px, calc(100% - 48px)); margin: 0 auto; padding: 160px 0 0; }
+  article a { color: var(--color-accent); text-underline-offset: 4px; }
+  header { padding-bottom: 0; }
+  header h1 {
+    margin: 0;
+    color: var(--color-heading);
+    font-size: clamp(1.6rem, 3vw, 1.75rem);
+    font-weight: 650;
+    line-height: 1.3;
+    letter-spacing: -.035em;
+    white-space: nowrap;
+  }
+  header .subtitle {
+    margin: 9px 0 0;
+    font-size: .98rem;
+    font-weight: 300;
+    line-height: 1.55;
+    letter-spacing: .01em;
+    opacity: .74;
+  }
+  header .description {
+    max-width: 600px;
+    margin: 28px 0 0;
+    font-size: .9rem;
+    font-weight: 400;
+    line-height: 1.8;
+    opacity: .7;
+  }
+  .post-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 25px;
+    min-height: 22px;
+    font-size: .72rem;
+    line-height: 1.5;
+  }
+  .author {
+    display: inline-flex;
+    align-items: center;
+    color: inherit;
+    text-decoration: none;
+  }
+  .author span { font-weight: 500; opacity: .78; }
+  .author:hover span { opacity: 1; }
+  .meta-divider {
+    margin: 0 2px;
+    opacity: .38;
+  }
+  time {
+    margin-right: 4px;
+    font-size: .72rem;
+    font-weight: 400;
+    opacity: .62;
+  }
+  .tags { display: flex; gap: 7px; margin: 0; padding: 0; list-style: none; }
+  .tags::before {
+    content: "/";
+    align-self: center;
+    margin: 0 3px 0 1px;
+    font-size: .72rem;
+    font-weight: 400;
+    opacity: .38;
+  }
+  .tags a {
+    display: block;
+    padding: 4px 8px;
+    border: 1px solid color-mix(in srgb, var(--color-border) 62%, transparent);
+    border-radius: 999px;
+    color: inherit;
+    font-size: .68rem;
+    font-weight: 400;
+    text-decoration: none;
+    opacity: .72;
+  }
+  .tags a:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    opacity: 1;
+  }
+  article { padding-top: 36px; font-size: .94rem; font-weight: 400; line-height: 2; letter-spacing: .005em; }
+  article h2 { margin: 76px 0 22px; color: var(--color-heading); font-size: 1.32rem; font-weight: 650; line-height: 1.5; letter-spacing: -.015em; }
+  article h3 { margin: 58px 0 18px; color: var(--color-heading); font-size: 1.1rem; font-weight: 650; line-height: 1.55; }
+  article h4 { margin: 48px 0 16px; color: var(--color-heading); font-size: .98rem; font-weight: 650; line-height: 1.65; }
+  article p { margin: 0 0 28px; }
+  article blockquote {
+    margin: 42px 0;
+    padding: 2px 0 2px 25px;
+    border-left: 3px solid var(--color-border);
+    opacity: .84;
+  }
+  article blockquote p:last-child { margin-bottom: 0; }
+  article img { display: block; width: 100%; height: auto; margin: 46px 0; background: #fff; }
+  article figure { margin: 46px 0; }
+  article figure img { margin: 0; }
+  article figcaption { margin-top: 9px; font-size: .78rem; line-height: 1.6; text-align: left; opacity: .58; }
+  article .image-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin: 46px 0; }
+  article .image-pair figure { margin: 0; }
+  article .image-pair img { margin: 0; }
+  article li { margin-bottom: 10px; }
+  article hr { margin: 64px 0 40px; border: 0; border-top: 1px solid var(--color-border); }
+  article .further-readings {
+    margin: 72px 0 0;
+    padding: 24px 28px 26px;
+    background: var(--color-panel);
+    font-weight: 400;
+  }
+  article .further-readings h2 {
+    margin: 0 0 18px;
+    padding: 0 0 12px;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-border) 68%, transparent);
+    font-size: .82rem;
+    font-weight: 650;
+    line-height: 1.5;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  article .further-readings ul { margin: 0; padding-left: 1.15rem; }
+  article .further-readings li { margin-bottom: 8px; font-size: .76rem; font-weight: 400; line-height: 1.7; }
+  article .further-readings li:last-child { margin-bottom: 0; }
+  @media (max-width: 640px) {
+    header h1 { font-size: 1.6rem; white-space: normal; }
+    article { font-size: .92rem; line-height: 1.95; }
+    article h2 { margin-top: 64px; font-size: 1.22rem; }
+    article .image-pair { grid-template-columns: 1fr; }
+    article .further-readings { padding: 22px 20px 24px; }
+  }
+</style>

@@ -1,0 +1,69 @@
+---
+import HomeIcon from '../components/HomeIcon.astro'
+import SiteFooter from '../components/SiteFooter.astro'
+
+const pageTitle = 'About — Ahyo'
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content="关于 Ahyo 和这个网站。" />
+    <title>{pageTitle}</title>
+  </head>
+  <body>
+    <HomeIcon />
+    <main>
+      <h1>About</h1>
+      <article>
+        <p>Hey there! This is ahyo（阿冰）.</p>
+        <p>在日研究生。一块浮游在东京的瓦砾。</p>
+        <p>
+          建立这个个人网站旨在留下一些痕迹（「日记、书单、展览···」），也算是OUTPUT的练习。
+        </p>
+        <p>
+          对视觉文化、日本的妖怪文化有兴趣。未来可能会更新一些这方面以及书单、展览的情报。
+        </p>
+
+        <blockquote>
+          <p>Better to write for yourself and have no public, than to write for the public and have no self.</p>
+          <footer>—— Cyril Connonlly</footer>
+        </blockquote>
+
+        <blockquote>
+          <p>「己の珠に非ざることを惧れるが故に、敢て刻苦して磨こうともせず、又、己の珠なるべきを半ば信ずるが故に、碌々として瓦に伍することも出来なかった。」</p>
+          <p>「我不敢下苦功琢磨自己，怕終於知道自己並非珠玉；然而心中既存著一絲希冀，便又不甘心與瓦礫為伍。」</p>
+          <footer>—— 中島敦『山月記』</footer>
+        </blockquote>
+
+        <section class="contact">
+          <h2>欢迎来交朋友 🍻</h2>
+          <a href="mailto:ahyo.zhao@gmail.com">ahyo.zhao@gmail.com</a>
+        </section>
+      </article>
+    </main>
+    <SiteFooter />
+  </body>
+</html>
+
+<style>
+  :global(*) { box-sizing: border-box; }
+  :global(body) { margin: 0; min-height: 100vh; color: var(--color-text); background: var(--color-bg); font-family: "Helvetica Neue", "PingFang SC", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Microsoft YaHei", Arial, sans-serif; font-weight: 400; }
+  main { width: min(640px, calc(100% - 48px)); margin: 0 auto; padding: 160px 0 0; }
+  h1 { margin: 0 0 40px; font-size: clamp(1.55rem, 3vw, 1.75rem); font-weight: 500; line-height: 1.1; letter-spacing: -.03em; }
+  article { max-width: 570px; font-size: .94rem; line-height: 1.9; }
+  article p { margin: 0 0 20px; }
+  h1 { color: var(--color-heading); }
+  blockquote { margin: 42px 0; padding: 2px 0 2px 22px; border-left: 2px solid var(--color-border); }
+  blockquote p { margin-bottom: 12px; }
+  blockquote footer { font-size: .76rem; opacity: .62; }
+  .contact { margin-top: 52px; padding-top: 26px; border-top: 1px solid var(--color-border); }
+  .contact h2 { margin: 0 0 12px; font-size: .96rem; font-weight: 500; }
+  .contact a { color: inherit; text-underline-offset: 4px; }
+  @media (max-width: 700px) {
+    main { padding-top: 116px; }
+    h1 { margin-bottom: 36px; }
+  }
+</style>

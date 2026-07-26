@@ -1,0 +1,251 @@
+---
+import { getCollection } from 'astro:content'
+import HomeIcon from '../components/HomeIcon.astro'
+import SiteFooter from '../components/SiteFooter.astro'
+
+const scatterSeed = (value: string) =>
+  [...value].reduce((total, character, index) => {
+    return total + (character.codePointAt(0) ?? 0) * (index + 17)
+  }, 0)
+
+const makeExcerpt = (value: string, limit = 58) => {
+  const characters = [...value.trim()]
+  return characters.length > limit
+    ? `${characters.slice(0, limit).join('').trimEnd()}……`
+    : value
+}
+
+const posts = (await getCollection('blog'))
+  .map((post) => ({
+    title: post.data.title,
+    description: post.data.description,
+    excerpt: makeExcerpt(post.data.description),
+    tags: post.data.tags,
+    date: post.data.publishedAt.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    }),
+    url: `/${post.data.slug ?? post.id}/`
+  }))
+  .sort((a, b) => scatterSeed(a.url) - scatterSeed(b.url))
+
+const tagCounts = posts
+  .flatMap((post) => post.tags)
+  .reduce<Record<string, number>>((counts, tag) => {
+    counts[tag] = (counts[tag] ?? 0) + 1
+    return counts
+  }, {})
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content="检索 Ahyo 的文章。" />
+    <title>Search — Ahyo</title>
+  </head>
+  <body>
+    <HomeIcon />
+    <main>
+      <h1>Search</h1>
+      <p id="count"></p>
+
+      <input
+        id="search-input"
+        type="search"
+        placeholder="Search Articles"
+        aria-label="Search articles by title, summary, or tag"
+        autocomplete="off"
+      />
+
+      <div class="tag-list" aria-label="按标签筛选">
+        {
+          Object.entries(tagCounts).map(([tag, total]) => (
+            <button type="button" data-tag={tag}>
+              {tag} <span>({total})</span>
+            </button>
+          ))
+        }
+      </div>
+
+      <ol id="results">
+        {
+          posts.map((post) => (
+            <li>
+              <a class="result-link" href={post.url}>
+                <div class="result-heading">
+                  <strong>{post.title}</strong>
+                  <time>{post.date}</time>
+                </div>
+                <p>{post.excerpt}</p>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </main>
+    <SiteFooter />
+
+    <script define:vars={{ posts }}>
+      const input = document.querySelector('#search-input')
+      const results = document.querySelector('#results')
+      const count = document.querySelector('#count')
+      const tagButtons = [...document.querySelectorAll('[data-tag]')]
+      const searchParams = new URLSearchParams(window.location.search)
+      const requestedTag = searchParams.get('tag') ?? ''
+      const requestedQuery = searchParams.get('q') ?? ''
+      let selectedTag = tagButtons.some((button) => button.dataset.tag === requestedTag)
+        ? requestedTag
+        : ''
+
+      input.value = requestedQuery
+      tagButtons.forEach((button) => {
+        button.classList.toggle('active', button.dataset.tag === selectedTag)
+      })
+
+      function updatePlaceholder() {
+        input.placeholder = selectedTag
+          ? `Search in #${selectedTag}`
+          : 'Search Articles'
+      }
+
+      function updateAddress() {
+        const url = new URL(window.location.href)
+        const query = input.value.trim()
+
+        query ? url.searchParams.set('q', query) : url.searchParams.delete('q')
+        selectedTag ? url.searchParams.set('tag', selectedTag) : url.searchParams.delete('tag')
+        window.history.replaceState({}, '', url)
+      }
+
+      function draw(query = '') {
+        const needle = query.trim().toLocaleLowerCase()
+        const matches = posts.filter((post) => {
+          const matchesText = [post.title, post.description, ...post.tags]
+            .join(' ')
+            .toLocaleLowerCase()
+            .includes(needle)
+          const matchesTag = !selectedTag || post.tags.includes(selectedTag)
+          return matchesText && matchesTag
+        })
+
+        const noun = matches.length === 1 ? 'entry' : 'entries'
+        count.textContent = needle || selectedTag
+          ? `${matches.length} ${noun} in view.`
+          : `${matches.length} ${noun} in the archive.`
+        results.innerHTML = matches.map((post) => `
+          <li>
+            <a class="result-link" href="${post.url}">
+              <div class="result-heading">
+                <strong>${post.title}</strong>
+                <time>${post.date}</time>
+              </div>
+              <p>${post.excerpt}</p>
+            </a>
+          </li>
+        `).join('')
+      }
+
+      input.addEventListener('input', (event) => {
+        draw(event.target.value)
+        updateAddress()
+      })
+      tagButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          selectedTag = selectedTag === button.dataset.tag ? '' : button.dataset.tag
+          tagButtons.forEach((item) => item.classList.toggle('active', item.dataset.tag === selectedTag))
+          updatePlaceholder()
+          draw(input.value)
+          updateAddress()
+        })
+      })
+      updatePlaceholder()
+      draw(input.value)
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; color: var(--color-text); background: var(--color-bg); font-family: "Helvetica Neue", "PingFang SC", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Microsoft YaHei", Arial, sans-serif; font-weight: 400; }
+  main { width: min(640px, calc(100% - 48px)); margin: 0 auto; padding: 160px 0 0; }
+  h1 { margin: 0 0 10px; color: var(--color-heading); font-size: clamp(1.55rem, 3vw, 1.75rem); font-weight: 500; line-height: 1.1; letter-spacing: -.03em; }
+  input { width: 100%; padding: 14px 16px; border: 1px solid color-mix(in srgb, var(--color-border) 82%, var(--color-heading)); border-radius: 0; color: inherit; background: var(--color-panel); font: inherit; outline: none; }
+  input:focus { border-color: var(--color-accent); box-shadow: 0 0 0 1px var(--color-accent); }
+  .tag-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 48px; }
+  .tag-list button { padding: 9px 13px; border: 0; border-radius: 0; color: inherit; background: var(--color-panel); font: inherit; font-size: .74rem; cursor: pointer; }
+  .tag-list button:hover { color: var(--color-accent); background: var(--color-hover); }
+  .tag-list button span { opacity: .58; }
+  .tag-list button.active { color: #f3f5f7; background: var(--color-accent); }
+  #count { margin: 0 0 32px; font-size: .74rem; opacity: .6; }
+  ol {
+    columns: 2;
+    column-gap: 15px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  li {
+    width: 100%;
+    margin: 0 0 15px;
+    break-inside: avoid;
+  }
+  .result-link {
+    display: block;
+    padding: 18px 19px 20px;
+    border: 1px solid color-mix(in srgb, var(--color-border) 30%, transparent);
+    border-radius: 10px;
+    color: inherit;
+    background: color-mix(in srgb, var(--color-panel) 32%, transparent);
+    text-decoration: none;
+    transition:
+      transform .22s cubic-bezier(.2, .75, .3, 1),
+      border-color .22s ease,
+      background-color .22s ease,
+      box-shadow .22s ease;
+  }
+  li:nth-child(4n + 1) .result-link { padding-bottom: 30px; }
+  li:nth-child(4n + 2) .result-link { padding-top: 25px; }
+  li:nth-child(4n + 3) .result-link { padding-bottom: 25px; }
+  .result-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; }
+  .result-heading strong { color: var(--color-heading); font-size: 1.08rem; font-weight: 600; line-height: 1.5; }
+  .result-heading time { flex: none; font-size: .74rem; opacity: .62; }
+  .result-link p {
+    display: -webkit-box;
+    margin: 9px 0 0;
+    overflow: hidden;
+    font-size: .9rem;
+    line-height: 1.85;
+    opacity: .74;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+  .result-link:hover,
+  .result-link:focus-visible {
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, var(--color-accent) 22%, transparent);
+    background: color-mix(in srgb, var(--color-hover) 42%, transparent);
+    box-shadow: 0 10px 24px rgba(29, 41, 51, .045);
+    outline: none;
+  }
+  .result-link:hover strong,
+  .result-link:focus-visible strong {
+    color: var(--color-accent);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .result-link { transition: none; }
+    .result-link:hover,
+    .result-link:focus-visible { transform: none; }
+  }
+  @media (max-width: 600px) {
+    main { padding-top: 116px; }
+    h1 { margin-bottom: 10px; }
+    ol { columns: 1; }
+    li { margin-bottom: 12px; }
+    .result-heading { display: grid; gap: 5px; }
+    .result-heading time { order: -1; }
+  }
+</style>
