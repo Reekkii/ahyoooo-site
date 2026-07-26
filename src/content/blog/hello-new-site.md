@@ -1,6 +1,7 @@
 ---
 title: 我的第一篇测试文章
 description: "这是我在新网站上亲手发布的第一篇测试文章。"
+draft: true
 publishedAt: 2026-07-26
 slug: hello-new-site
 tags:
